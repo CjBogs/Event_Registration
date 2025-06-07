@@ -14,15 +14,8 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Allowed email domains
+// Allowed email domains (optional, for global usage)
 $allowed_domains = ['gmail.com', 'gordoncollege.edu.ph'];
-
-// Helper function to check allowed email domains
-function isAllowedDomain($email, $allowed_domains)
-{
-    $domain = substr(strrchr($email, "@"), 1);
-    return in_array($domain, $allowed_domains);
-}
 
 // Define Super Admin email (only once)
 if (!defined('SUPER_ADMIN_EMAIL')) {
