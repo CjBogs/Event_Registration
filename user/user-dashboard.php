@@ -10,15 +10,27 @@ $email = $_SESSION['email'];
 
 include('../config.php');
 
-// Fetch profile image
-$query = "SELECT profile_image FROM users WHERE email = ?";
+// Fetch full user data including profile_image
+$query = "SELECT first_name, last_name, email, profile_image FROM users WHERE email = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param('s', $email);
 $stmt->execute();
-$stmt->bind_result($imagePath);
-$stmt->fetch();
+$result = $stmt->get_result();
+
+if ($result && $result->num_rows > 0) {
+  $user = $result->fetch_assoc();
+
+  // Check if profile_image is set and not empty, else fallback to default image
+  if (!empty($user['profile_image']) && file_exists("../uploads/" . $user['profile_image'])) {
+    $imagePath = "../uploads/" . $user['profile_image'];
+  } else {
+    $imagePath = "../uploads/default.png"; // Or wherever your default image is stored
+  }
+} else {
+  $imagePath = "../uploads/default.png";
+}
+
 $stmt->close();
-$imagePath = $imagePath ?: 'default.png';
 
 // Fetch user event registrations (approved and pending)
 $events = [];
@@ -41,11 +53,14 @@ $stmt->close();
 
 <!DOCTYPE html>
 <html lang="en" x-data="{
-  sidebarOpen: false,
+  sidebarOpen: localStorage.getItem('sidebarOpen') === 'true',
   tab: window.location.hash ? window.location.hash.substring(1) : 'registeredEvents'
 }" x-init="
   $watch('tab', value => {
     window.location.hash = value;
+  });
+  $watch('sidebarOpen', value => {
+    localStorage.setItem('sidebarOpen', value);
   });
 " class="h-full">
 
@@ -122,6 +137,7 @@ $stmt->close();
 
     <!-- Navigation with Alpine tabs -->
     <nav class="px-6 flex flex-col space-y-3 mt-6">
+
       <button
         @click="tab = 'registeredEvents'"
         :class="tab === 'registeredEvents' ? 'bg-[#1D503A] text-[#FAF5EE]' : 'bg-[#FAF5EE] text-[#1D503A] hover:bg-[#E5E1DB]'"
@@ -133,9 +149,15 @@ $stmt->close();
         class="block w-full text-center px-4 py-2 rounded font-semibold transition">Events</button>
 
       <button
+        @click="tab = 'requestEvent'"
+        :class="tab === 'requestEvent' ? 'bg-[#1D503A] text-[#FAF5EE]' : 'bg-[#FAF5EE] text-[#1D503A] hover:bg-[#E5E1DB]'"
+        class="block w-full text-center px-4 py-2 rounded font-semibold transition">Request</button>
+
+      <button
         @click="tab = 'upcomingEvents'"
         :class="tab === 'upcomingEvents' ? 'bg-[#1D503A] text-[#FAF5EE]' : 'bg-[#FAF5EE] text-[#1D503A] hover:bg-[#E5E1DB]'"
-        class="block w-full text-center px-4 py-2 rounded font-semibold transition">Upcoming Events</button>
+        class="block w-full text-center px-4 py-2 rounded font-semibold transition">Upcoming</button>
+
     </nav>
 
     <div class="px-6 mt-auto">
@@ -376,24 +398,30 @@ $stmt->close();
     </header>
 
     <!-- Page Content -->
-    <main class="p-6 pt-6 overflow-y-auto flex-1" x-data>
+    <main class="p-6 pt-6 overflow-y-auto flex-1 min-h-[400px]">
 
-      <!-- Content Sections -->
       <section x-show="tab === 'registeredEvents'" x-transition x-cloak>
+        <h2 class="text-2xl font-bold mb-6 text-green-700 text-center"></h2>
         <?php include 'registered-events.php'; ?>
       </section>
 
       <section x-show="tab === 'userEvents'" x-transition x-cloak>
-        <h2 class="text-2xl font-bold mb-6 text-green-700 text-center">Events</h2>
         <?php include 'user-events.php'; ?>
       </section>
 
+      <section x-show="tab === 'requestEvent'" x-transition x-cloak>
+        <h2 class="text-2xl font-bold mb-6 text-green-700 text-center"></h2>
+        <?php include 'request-event.php'; ?>
+      </section>
+
       <section x-show="tab === 'upcomingEvents'" x-transition x-cloak>
-        <h2 class="text-2xl font-bold mb-6 text-green-700 text-center">Upcoming Events</h2>
+        <h2 class="text-2xl font-bold mb-6 text-green-700 text-center"></h2>
         <?php include 'upcoming-events.php'; ?>
       </section>
 
     </main>
+
+  </div>
   </div>
 </body>
 

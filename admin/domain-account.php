@@ -15,7 +15,7 @@ if (isset($_POST['register'])) {
     if ($email_domain !== $allowed_domain) {
         $_SESSION['register_error'] = 'Please use domain account';
         $_SESSION['active_form'] = 'register';
-        header("Location: index.php");
+        header("Location: ../landing-page.php");
         exit();
     }
 
@@ -28,7 +28,7 @@ if (isset($_POST['register'])) {
         $conn->query("INSERT INTO users (name, email, password, role) VALUES ('$name', '$email', '$password', '$role')");
     }
 
-    header("Location: index.php");
+    header("Location: ../landing-page.php");
     exit();
 }
 
@@ -41,7 +41,7 @@ if (isset($_POST['login'])) {
     if ($email_domain !== $allowed_domain) {
         $_SESSION['login_error'] = 'Please use domain account.';
         $_SESSION['active_form'] = 'login';
-        header("Location: index.php");
+        header("Location: ../landing-page.php");
         exit();
     }
 
@@ -63,6 +63,6 @@ if (isset($_POST['login'])) {
 
     $_SESSION['login_error'] = 'Incorrect email or password';
     $_SESSION['active_form'] = 'login';
-    header("Location: index.php");
+    header("Location: ../landing-page.php");
     exit();
 }

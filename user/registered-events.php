@@ -45,8 +45,6 @@ $events = $stmt->get_result();
       <?php endif; ?>
     </div>
 
-    <h2 class="text-2xl font-semibold mb-2 -mt-5 text-[#1D503A]">My Event Registrations</h2>
-
     <div class="overflow-x-auto bg-white rounded-xl shadow border" style="border-color: #1D503A;">
       <table class="min-w-full text-sm text-left text-gray-700">
         <thead class="bg-gray-100 border-b text-xs text-gray-500 uppercase sticky top-0 z-10">

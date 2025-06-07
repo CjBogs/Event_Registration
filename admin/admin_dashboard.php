@@ -19,12 +19,6 @@ $stmt->bind_result($role, $status, $firstName, $lastName, $profileImage);
 $stmt->fetch();
 $stmt->close();
 
-// Redirect admin if not yet approved
-if ($role === 'admin' && $status === 'pending') {
-  header("Location: ../not-approved.php");
-  exit();
-}
-
 // Prepare name and image for session
 $nameFromDb = trim(($firstName ?? '') . ' ' . ($lastName ?? ''));
 $name = $_SESSION['name'] ?? ($nameFromDb ?: 'Admin');
