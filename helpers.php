@@ -13,22 +13,16 @@ function truncate($text, $maxChars = 50)
 function redirectUserByRole(array $user)
 {
     $role = strtolower($user['role'] ?? 'user');
-    $status = strtolower(trim($user['status'] ?? ''));
     $email = strtolower($user['email'] ?? '');
     $superAdminEmail = strtolower(SUPER_ADMIN_EMAIL); // Define this constant in your config
 
-    if ($email === $superAdminEmail || $role === 'super admin') {
+    if ($email === $superAdminEmail || $role === 'super_admin') {
         header("Location: super_admin/super_admin_dashboard.php");
         exit();
     }
 
     if ($role === 'admin') {
-        if ($status === 'approved') {
-            header("Location: admin/admin_dashboard.php");
-        } else {
-            // Redirect unapproved admins to landing page
-            header("Location: landing-page.php");
-        }
+        header("Location: admin/admin_dashboard.php");
         exit();
     }
 
@@ -41,4 +35,14 @@ function redirectUserByRole(array $user)
 function isSuperAdmin()
 {
     return isset($_SESSION['email']) && strtolower($_SESSION['email']) === strtolower(SUPER_ADMIN_EMAIL);
+}
+
+// Allowed email domains
+$allowed_domains = ['gmail.com', 'gordoncollege.edu.ph'];
+
+// Helper: Check allowed email domain (case-insensitive)
+function isAllowedDomain(string $email, array $allowed_domains): bool
+{
+    $domain = strtolower(substr(strrchr($email, "@"), 1));
+    return in_array($domain, array_map('strtolower', $allowed_domains));
 }
