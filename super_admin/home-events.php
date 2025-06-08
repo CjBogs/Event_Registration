@@ -2,7 +2,28 @@
 require_once '../config.php';
 require_once '../helpers.php';
 
-$name = $_SESSION['user_name'] ?? 'User';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$name = 'User';
+
+if (!empty($_SESSION['user_email'])) {
+    $email = $_SESSION['user_email'];
+
+    $stmt = $conn->prepare("SELECT first_name, last_name FROM users WHERE email = ?");
+    if ($stmt) {
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->bind_result($first_name, $last_name);
+
+        if ($stmt->fetch()) {
+            $name = trim($first_name . ' ' . $last_name);
+        }
+
+        $stmt->close();
+    }
+}
 
 // Fetch pending events ordered by event_date DESC
 $query = "SELECT * FROM events WHERE status = 'pending' ORDER BY event_date DESC";
@@ -21,7 +42,6 @@ function statusIcon($status)
     };
 }
 ?>
-
 
 <div class="max-w-4xl mx-auto px-4" x-data="{ showModal: false, actionType: '', eventId: null }" x-cloak>
     <div class="text-center mb-6">
@@ -103,8 +123,12 @@ function statusIcon($status)
             </table>
         </div>
     <?php else: ?>
-        <div class="text-center text-[#1D503A] mt-6 border-2 border-dashed border-[#1D503A] bg-[#FAF5EE] rounded-xl p-6 max-w-3xl mx-auto">
-            <svg class="mx-auto mb-4 w-20 h-20 text-[#1D503A]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <div
+            class="text-center text-[#1D503A] select-none"
+            role="alert"
+            aria-live="polite"
+            style="margin: 0.5rem auto; border: 2px dashed #1D503A; border-radius: 1rem; background-color: #FAF5EE; max-width: 900px; width: 100%; padding: 2rem 1rem;">
+            <svg class="mx-auto mb-4 w-20 h-20 text-[#1D503A]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 2a2 2 0 0 1 2 2v3H6V4a2 2 0 0 1 2-2h8zm4 7v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h16zm-5 3H9v1h6v-1z" />
             </svg>
             <p class="text-lg font-semibold">No events requested.</p>

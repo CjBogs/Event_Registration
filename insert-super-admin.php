@@ -2,12 +2,11 @@
 require_once 'config.php';
 
 // Define user info
-$email = '202310944@gordoncollege.edu.ph';
-// Split name into first and last (adjust this as needed)
-$first_name = 'Super';
-$last_name = 'Admin';
-$password = password_hash('1', PASSWORD_DEFAULT); // Securely hash the password
-$role = 'super_admin';
+$email = 'admin1@gordoncollege.edu.ph';
+$first_name = 'Joseph';
+$last_name = 'Angelo';
+$password = password_hash('Cj090771124', PASSWORD_DEFAULT); // Securely hash the password
+$role = 'super_admin'; // or 'admin', 'student', etc.
 $status = 'approved';
 $profile_image = 'default.png';
 $course = '';
@@ -22,11 +21,11 @@ $stmt->execute();
 $stmt->store_result();
 
 if ($stmt->num_rows > 0) {
-    echo "Super admin already exists.";
+    echo "User already exists.";
 } else {
     $stmt->close();
 
-    // Insert super admin
+    // Insert new user
     $stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, password, role, profile_image, created_at, status, course, year, block) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
     $stmt->bind_param(
@@ -45,7 +44,7 @@ if ($stmt->num_rows > 0) {
     );
 
     if ($stmt->execute()) {
-        echo "Super admin inserted successfully.";
+        echo "User inserted successfully.";
     } else {
         echo "Error: " . $stmt->error;
     }

@@ -9,7 +9,7 @@ unset($_SESSION['flash_success']);
 
 <div class="max-w-4xl mx-auto px-4" x-data="{ showModal: false, actionType: '', eventId: null }" x-cloak>
     <div class="text-center mb-6">
-        <h2 class="text-2xl font-semibold text-[#1D503A]">Welcome, <?= htmlspecialchars($name) ?>! Create an Event.</h2>
+        <h2 class="text-2xl font-semibold text-[#1D503A]">Create an Event.</h2>
         <p class="text-lg text-[#4A5D4C] border-b-2 pb-2 border-[#1D503A]"></p>
     </div>
 

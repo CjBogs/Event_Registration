@@ -255,7 +255,7 @@ $imagePath = $imagePath ?: 'default.png';
       </button>
 
       <!-- Title -->
-      <h1 class="text-lg font-semibold">SUPER ADMIN DASHBOARD</h1>
+      <h1 class="text-lg font-semibold">ADMIN DASHBOARD</h1>
 
       <div x-data="{ open: false }" class="relative flex items-center space-x-3">
         <!-- Profile Image -->
