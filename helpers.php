@@ -36,11 +36,6 @@ if (!function_exists('redirectUserByRole')) {
             exit();
         }
 
-        if ($role === 'admin') {
-            header("Location: admin/admin_dashboard.php");
-            exit();
-        }
-
         // Default user redirection
         header("Location: user/user-dashboard.php");
         exit();

@@ -12,65 +12,60 @@ $loggedInEmail = $_SESSION['email'];
 // Sanitize input
 $first_name = trim($_POST['first_name'] ?? '');
 $last_name  = trim($_POST['last_name'] ?? '');
-$email      = trim($_POST['email'] ?? '');
 $password   = $_POST['password'] ?? '';
+$confirm_password = $_POST['confirm_password'] ?? '';
 
-if (empty($first_name) || empty($last_name) || empty($email)) {
-    $_SESSION['message'] = "First name, last name, and email are required.";
+// Validate required fields
+if (empty($first_name) || empty($last_name)) {
+    $_SESSION['message'] = "First name and last name are required.";
     $_SESSION['message_type'] = "error";
     header("Location: ../user/user-dashboard.php");
     exit();
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $_SESSION['message'] = "Invalid email format.";
-    $_SESSION['message_type'] = "error";
-    header("Location: ../user/user-dashboard.php");
-    exit();
-}
-
-if (!isAllowedDomains($email, $allowed_domains)) {
-    $_SESSION['message'] = "Only emails from gmail.com or gordoncollege.edu.ph are allowed.";
-    $_SESSION['message_type'] = "error";
-    header("Location: ../user/user-dashboard.php");
-    exit();
-}
-
-// Check if email already exists for another account
-$stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND email != ?");
-$stmt->bind_param("ss", $email, $loggedInEmail);
-$stmt->execute();
-$stmt->store_result();
-if ($stmt->num_rows > 0) {
-    $_SESSION['message'] = "This email is already taken.";
-    $_SESSION['message_type'] = "error";
-    $stmt->close();
-    header("Location: ../user/user-dashboard.php");
-    exit();
-}
-$stmt->close();
-
-// Update query
+// Validate password if provided
 if (!empty($password)) {
-    $password_hash = password_hash($password, PASSWORD_DEFAULT);
-    $query = "UPDATE users SET first_name = ?, last_name = ?, email = ?, password = ? WHERE email = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param('sssss', $first_name, $last_name, $email, $password_hash, $loggedInEmail);
-} else {
-    $query = "UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE email = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param('ssss', $first_name, $last_name, $email, $loggedInEmail);
+    if (strlen($password) < 6) {
+        $_SESSION['message'] = "Password must be at least 6 characters long.";
+        $_SESSION['message_type'] = "error";
+        header("Location: ../user/user-dashboard.php");
+        exit();
+    }
+    if ($password !== $confirm_password) {
+        $_SESSION['message'] = "Password and Confirm Password do not match.";
+        $_SESSION['message_type'] = "error";
+        header("Location: ../user/user-dashboard.php");
+        exit();
+    }
 }
 
-if ($stmt->execute()) {
-    $_SESSION['email'] = $email;
-    $_SESSION['message'] = "Profile updated successfully.";
-    $_SESSION['message_type'] = "success";
-} else {
-    $_SESSION['message'] = "Update failed. Please try again.";
+try {
+    if (!empty($password)) {
+        // Hash password and update with password
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
+        $query = "UPDATE users SET first_name = ?, last_name = ?, password = ? WHERE email = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param('ssss', $first_name, $last_name, $password_hash, $loggedInEmail);
+    } else {
+        // Update without password
+        $query = "UPDATE users SET first_name = ?, last_name = ? WHERE email = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param('sss', $first_name, $last_name, $loggedInEmail);
+    }
+
+    if ($stmt->execute()) {
+        $_SESSION['message'] = "Profile updated successfully.";
+        $_SESSION['message_type'] = "success";
+    } else {
+        $_SESSION['message'] = "Update failed. Please try again.";
+        $_SESSION['message_type'] = "error";
+    }
+
+    $stmt->close();
+} catch (Exception $e) {
+    $_SESSION['message'] = "An unexpected error occurred: " . $e->getMessage();
     $_SESSION['message_type'] = "error";
 }
 
-$stmt->close();
 header("Location: ../user/user-dashboard.php");
 exit();

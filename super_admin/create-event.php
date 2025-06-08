@@ -2,7 +2,7 @@
 session_start();
 require_once '../config.php';
 
-if (!isset($_SESSION['email']) || ($_SESSION['role'] ?? '') !== 'admin') {
+if (!isset($_SESSION['email']) || ($_SESSION['role'] ?? '') !== 'super_admin') {
     header("Location: ../landing-page.php");
     exit();
 }
@@ -40,14 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Prepare statement
-    $sql = "INSERT INTO events (title, description, event_date, created_by, user_email, status) VALUES (?, ?, ?, ?, ?, 'pending')";
+    $sql = "INSERT INTO events (title, description, event_date, created_by, user_email, status) VALUES (?, ?, ?, ?, ?, 'approved')";
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
         // Log error in production, show generic error to user
         $_SESSION['event_message'] = "Database error. Please try again later.";
         $_SESSION['event_message_type'] = "error";
-        header("Location: admin_dashboard.php");
+        header("Location: super_admin_dashboard.php#eventCreation");
         exit();
     }
 
@@ -57,15 +57,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
         $_SESSION['event_message'] = "Event created successfully!";
         $_SESSION['event_message_type'] = "success";
-        header("Location: admin_dashboard.php");
+        header("Location: super_admin_dashboard.php#eventCreation");
         exit();
     } else {
         $_SESSION['event_message'] = "Failed to create event: " . $stmt->error;
         $_SESSION['event_message_type'] = "error";
-        header("Location: admin_dashboard.php");
+        header("Location: super_admin_dashboard.php#eventCreation");
         exit();
     }
 } else {
-    header("Location: admin_dashboard.php");
+    header("Location: super_admin_dashboard.php#eventCreation");
     exit();
 }

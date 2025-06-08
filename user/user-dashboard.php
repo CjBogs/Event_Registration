@@ -68,8 +68,13 @@ $stmt->close();
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>User Dashboard</title>
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     .btn-primary {
       background-color: #1D503A;
@@ -138,25 +143,23 @@ $stmt->close();
     <!-- Navigation with Alpine tabs -->
     <nav class="px-6 flex flex-col space-y-3 mt-6">
 
-      <button
-        @click="tab = 'registeredEvents'"
-        :class="tab === 'registeredEvents' ? 'bg-[#1D503A] text-[#FAF5EE]' : 'bg-[#FAF5EE] text-[#1D503A] hover:bg-[#E5E1DB]'"
-        class="block w-full text-center px-4 py-2 rounded font-semibold transition">Home</button>
-
-      <button
-        @click="tab = 'userEvents'"
-        :class="tab === 'userEvents' ? 'bg-[#1D503A] text-[#FAF5EE]' : 'bg-[#FAF5EE] text-[#1D503A] hover:bg-[#E5E1DB]'"
-        class="block w-full text-center px-4 py-2 rounded font-semibold transition">Events</button>
-
+      <!--Create event with  Request form-->
       <button
         @click="tab = 'requestEvent'"
         :class="tab === 'requestEvent' ? 'bg-[#1D503A] text-[#FAF5EE]' : 'bg-[#FAF5EE] text-[#1D503A] hover:bg-[#E5E1DB]'"
-        class="block w-full text-center px-4 py-2 rounded font-semibold transition">Request</button>
+        class="block w-full text-center px-4 py-2 rounded font-semibold transition">Create Event</button>
 
+      <!--Registration-->
       <button
-        @click="tab = 'upcomingEvents'"
-        :class="tab === 'upcomingEvents' ? 'bg-[#1D503A] text-[#FAF5EE]' : 'bg-[#FAF5EE] text-[#1D503A] hover:bg-[#E5E1DB]'"
-        class="block w-full text-center px-4 py-2 rounded font-semibold transition">Upcoming</button>
+        @click="tab = 'userEvents'"
+        :class="tab === 'userEvents' ? 'bg-[#1D503A] text-[#FAF5EE]' : 'bg-[#FAF5EE] text-[#1D503A] hover:bg-[#E5E1DB]'"
+        class="block w-full text-center px-4 py-2 rounded font-semibold transition">Registration</button>
+
+      <!--View Event Details-->
+      <button
+        @click="tab = 'registeredEvents'"
+        :class="tab === 'registeredEvents' ? 'bg-[#1D503A] text-[#FAF5EE]' : 'bg-[#FAF5EE] text-[#1D503A] hover:bg-[#E5E1DB]'"
+        class="block w-full text-center px-4 py-2 rounded font-semibold transition">View Events</button>
 
     </nav>
 
@@ -255,7 +258,7 @@ $stmt->close();
   <div class="flex-1 flex flex-col overflow-hidden">
 
     <!-- Top Navbar -->
-    <header class="px-6 py-4 flex justify-between items-center shadow md:pl-6" style="background-color: #1D503A; color: #FAF5EE;">
+    <header class="px-6 py-2 flex justify-between items-center shadow md:pl-6" style="background-color: #1D503A; color: #FAF5EE;">
       <button @click="sidebarOpen = !sidebarOpen" class="md:hidden focus:outline-none" aria-label="Toggle sidebar menu">
         <svg class="w-6 h-6 text-[#FAF5EE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -393,12 +396,18 @@ $stmt->close();
               </form>
             </div>
           </div>
-
         </div>
     </header>
 
+
+
     <!-- Page Content -->
     <main class="p-6 pt-6 overflow-y-auto flex-1 min-h-[400px]">
+
+      <section x-show="tab === 'requestEvent'" x-transition x-cloak>
+        <h2 class="text-2xl font-bold mb-6 text-green-700 text-center"></h2>
+        <?php include 'request-event.php'; ?>
+      </section>
 
       <section x-show="tab === 'registeredEvents'" x-transition x-cloak>
         <h2 class="text-2xl font-bold mb-6 text-green-700 text-center"></h2>
@@ -407,16 +416,6 @@ $stmt->close();
 
       <section x-show="tab === 'userEvents'" x-transition x-cloak>
         <?php include 'user-events.php'; ?>
-      </section>
-
-      <section x-show="tab === 'requestEvent'" x-transition x-cloak>
-        <h2 class="text-2xl font-bold mb-6 text-green-700 text-center"></h2>
-        <?php include 'request-event.php'; ?>
-      </section>
-
-      <section x-show="tab === 'upcomingEvents'" x-transition x-cloak>
-        <h2 class="text-2xl font-bold mb-6 text-green-700 text-center"></h2>
-        <?php include 'upcoming-events.php'; ?>
       </section>
 
     </main>

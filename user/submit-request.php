@@ -64,8 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt->close();
 
-        // Redirect back to user dashboard with success flag and fragment
-        header("Location: user-dashboard.php?success=true#requestEvent");
+        // After successful submission:
+        $_SESSION['flash_success'] = "Your event request has been sent and is awaiting admin approval.";
+
+        // Redirect to clean URL (no ?success param)
+        header("Location: user-dashboard.php#requestEvent");
         exit();
     } else {
         echo "Missing fields or upload failed.";

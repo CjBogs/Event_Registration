@@ -3,6 +3,15 @@
 
 $allUsers = $conn->query("SELECT id, first_name, last_name, email, status, role, created_at FROM users WHERE role != 'super_admin' ORDER BY created_at DESC");
 ?>
+<div class="max-w-4xl mx-auto">
+    <div class="text-center mb-6">
+        <h2 class="text-xl font-semibold text-[#1D503A]">List of Accounts</h2>
+        <p class="text-lg text-[#4A5D4C] border-b-2 pb-2 border-[#1D503A]">
+            View, manage, and update account information
+        </p>
+    </div>
+</div>
+
 
 <div class="overflow-x-auto bg-white rounded-xl shadow border mx-auto" style="border-color: #1D503A; max-width: 1000px;">
     <table class="w-full text-sm text-left text-gray-700">

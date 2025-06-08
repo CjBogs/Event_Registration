@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Redirect to landing page if not logged in
+// Redirect if not logged in
 if (!isset($_SESSION['email'])) {
     header("Location: ../landing-page.php");
     exit();
@@ -23,7 +23,7 @@ if (!$eventId || !filter_var($eventId, FILTER_VALIDATE_INT)) {
 
 include('../config.php');
 
-// Check if user already registered for this event
+// Check if already registered
 $query = "SELECT 1 FROM event_registrations WHERE user_email = ? AND event_id = ?";
 $stmt = $conn->prepare($query);
 if (!$stmt) {
@@ -41,8 +41,8 @@ if ($stmt->num_rows > 0) {
 }
 $stmt->close();
 
-// Insert the registration with pending status
-$query = "INSERT INTO event_registrations (user_email, event_id, course, year, block, status) VALUES (?, ?, ?, ?, ?, 'pending')";
+// Insert registration WITHOUT status column (or with 'approved' if you want)
+$query = "INSERT INTO event_registrations (user_email, event_id, course, year, block, status) VALUES (?, ?, ?, ?, ?, 'approved')";
 $stmt = $conn->prepare($query);
 if (!$stmt) {
     header("Location: user-dashboard.php?message=sql_error#userEvents");
@@ -51,8 +51,9 @@ if (!$stmt) {
 $stmt->bind_param('sisss', $email, $eventId, $course, $yearLevel, $block);
 
 if ($stmt->execute()) {
-    // Redirect with registered=true to trigger success modal
-    header("Location: user-dashboard.php?registered=true#userEvents");
+    $_SESSION['flash_registration'] = "You have successfully registered for the event!";
+    header("Location: user-dashboard.php#userEvents");
+    exit();
 } else {
     header("Location: user-dashboard.php?message=error#userEvents");
 }
