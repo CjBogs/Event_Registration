@@ -7,7 +7,7 @@ if ($environment === 'local') {
     $servername = "localhost";
     $username = "root";
     $password = "";
-    $dbname = "users_db"; // Your local DB name
+    $dbname = "users_db";
     $port = 3306;
 } else {
     // Remote (Render or Freesqldatabase)
@@ -23,8 +23,16 @@ $conn = new mysqli($servername, $username, $password, $dbname, $port);
 
 // Check connection
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    error_log("Connection failed: " . $conn->connect_error);
+    die("Database connection error.");
 }
+
+// Automatically close connection when script ends
+register_shutdown_function(function () use (&$conn) {
+    if ($conn && !$conn->connect_error) {
+        $conn->close();
+    }
+});
 
 // Allowed email domains
 $allowed_domains = ['gmail.com', 'gordoncollege.edu.ph'];
