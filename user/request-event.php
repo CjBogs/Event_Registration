@@ -2,10 +2,39 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once('../config.php');
 
+$allowedTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+];
+
+$allowedExtensions = ['pdf', 'doc', 'docx'];
+
+if (isset($_FILES['document'])) {
+    $fileType = $_FILES['document']['type'];
+    $fileName = $_FILES['document']['name'];
+    $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+    if (!in_array($fileType, $allowedTypes) || !in_array($fileExtension, $allowedExtensions)) {
+        die("Error: Only PDF and DOC/DOCX files are allowed.");
+    }
+
+    // OPTIONAL: Handle file upload
+    $uploadDir = '../uploads/';
+    $targetFile = $uploadDir . basename($fileName);
+
+    if (move_uploaded_file($_FILES['document']['tmp_name'], $targetFile)) {
+        $_SESSION['flash_success'] = 'File uploaded successfully.';
+    } else {
+        die("Error: File upload failed.");
+    }
+}
+
 // Grab and clear flash message from session
 $flashSuccess = $_SESSION['flash_success'] ?? '';
 unset($_SESSION['flash_success']);
 ?>
+
 
 <div class="max-w-4xl mx-auto px-4" x-data="{ showModal: false, actionType: '', eventId: null }" x-cloak>
     <div class="text-center mb-6">
@@ -108,11 +137,11 @@ unset($_SESSION['flash_success']);
 
             <div class="mb-0">
                 <label for="request_file" class="block text-gray-700 font-medium mb-0 flex items-center gap-1">
-                    <i data-lucide="paperclip" class="w-4 h-4"></i> Attach Request Form (PDF/Image)
+                    <i data-lucide="paperclip" class="w-4 h-4"></i> Attach Request Form (PDF/Docx)
                 </label>
                 <div class="flex items-center gap-4">
                     <div class="flex-grow">
-                        <input type="file" name="request_file" id="request_file" accept=".pdf,.jpg,.jpeg,.png"
+                        <input type="file" name="document" accept=".pdf,.doc,.docx"
                             class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4
                         file:rounded-md file:border-0 file:text-sm file:font-semibold
                         file:bg-[#1D503A] file:text-white hover:file:bg-[#144124]" required />
