@@ -1,6 +1,6 @@
 <?php
 // Toggle between 'local' and 'production'
-$environment = 'production'; // Change to 'production' when deploying
+$environment = 'local'; // Change to 'production' when deploying
 
 if ($environment === 'local') {
     // Local XAMPP/MySQL setup
@@ -31,5 +31,5 @@ $allowed_domains = ['gmail.com', 'gordoncollege.edu.ph'];
 
 // Define Super Admin email
 if (!defined('SUPER_ADMIN_EMAIL')) {
-    define('SUPER_ADMIN_EMAIL', '202310944@gordoncollege.edu.ph');
+    define('SUPER_ADMIN_EMAIL', 'admin1@gordoncollege.edu.ph');
 }

@@ -89,8 +89,8 @@ $events = $stmt->get_result();
         <svg class="mx-auto mb-4 w-20 h-20 text-[#1D503A]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16 2a2 2 0 0 1 2 2v3H6V4a2 2 0 0 1 2-2h8zm4 7v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h16zm-5 3H9v1h6v-1z" />
         </svg>
-        <p class="text-lg font-semibold">No approved events found.</p>
-        <p class="text-sm text-[#4F766E]">Please check back later for updates.</p>
+        <p class="text-lg font-semibold">No registered events found.</p>
+        <p class="text-sm text-[#4F766E]">Register now!</p>
       </div>
     <?php endif; ?>
 
