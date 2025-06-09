@@ -137,14 +137,19 @@ unset($_SESSION['flash_success']);
 
             <div class="mb-0">
                 <label for="request_file" class="block text-gray-700 font-medium mb-0 flex items-center gap-1">
-                    <i data-lucide="paperclip" class="w-4 h-4"></i> Attach Request Form (PDF/Docx)
+                    <i data-lucide="paperclip" class="w-4 h-4"></i> Attach Request Form (PDF/DOC/DOCX)
                 </label>
                 <div class="flex items-center gap-4">
                     <div class="flex-grow">
-                        <input type="file" name="document" accept=".pdf,.doc,.docx"
+                        <input
+                            type="file"
+                            id="request_file"
+                            name="request_file"
+                            accept=".pdf,.doc,.docx"
                             class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4
-                        file:rounded-md file:border-0 file:text-sm file:font-semibold
-                        file:bg-[#1D503A] file:text-white hover:file:bg-[#144124]" required />
+                file:rounded-md file:border-0 file:text-sm file:font-semibold
+                file:bg-[#1D503A] file:text-white hover:file:bg-[#144124]"
+                            required />
                     </div>
 
                     <button type="submit"
@@ -153,6 +158,7 @@ unset($_SESSION['flash_success']);
                     </button>
                 </div>
             </div>
+
         </form>
     </div>
 

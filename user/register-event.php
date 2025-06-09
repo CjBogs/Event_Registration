@@ -3,7 +3,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Redirect if not logged in
 if (!isset($_SESSION['email'])) {
     header("Location: ../landing-page.php");
     exit();
@@ -15,19 +14,19 @@ $course = $_POST['course'] ?? '';
 $yearLevel = $_POST['year'] ?? '';
 $block = $_POST['block'] ?? '';
 
-// Validate event ID
 if (!$eventId || !filter_var($eventId, FILTER_VALIDATE_INT)) {
-    header("Location: user-dashboard.php?message=invalid_event_id#userEvents");
+    $_SESSION['flash_registration'] = 'Invalid event ID.';
+    header("Location: user-dashboard.php#userEvents");
     exit();
 }
 
-include('../config.php');
+require('../config.php');
 
-// Check if already registered
-$query = "SELECT 1 FROM event_registrations WHERE user_email = ? AND event_id = ?";
-$stmt = $conn->prepare($query);
+// Check for duplicate registration
+$stmt = $conn->prepare("SELECT 1 FROM event_registrations WHERE user_email = ? AND event_id = ?");
 if (!$stmt) {
-    header("Location: user-dashboard.php?message=sql_error#userEvents");
+    $_SESSION['flash_registration'] = 'Database error.';
+    header("Location: user-dashboard.php#userEvents");
     exit();
 }
 $stmt->bind_param('si', $email, $eventId);
@@ -36,28 +35,31 @@ $stmt->store_result();
 
 if ($stmt->num_rows > 0) {
     $stmt->close();
-    header("Location: user-dashboard.php?message=already_registered#userEvents");
+    $_SESSION['flash_registration'] = 'You are already registered for this event.';
+    header("Location: user-dashboard.php#userEvents");
     exit();
 }
 $stmt->close();
 
-// Insert registration WITHOUT status column (or with 'approved' if you want)
-$query = "INSERT INTO event_registrations (user_email, event_id, course, year, block, status) VALUES (?, ?, ?, ?, ?, 'approved')";
-$stmt = $conn->prepare($query);
+// Insert with 'approved' status
+$stmt = $conn->prepare("INSERT INTO event_registrations (user_email, event_id, course, year, block, status) VALUES (?, ?, ?, ?, ?, 'approved')");
 if (!$stmt) {
-    header("Location: user-dashboard.php?message=sql_error#userEvents");
+    $_SESSION['flash_registration'] = 'Database error.';
+    header("Location: user-dashboard.php#userEvents");
     exit();
 }
 $stmt->bind_param('sisss', $email, $eventId, $course, $yearLevel, $block);
 
 if ($stmt->execute()) {
-    $_SESSION['flash_registration'] = "You have successfully registered for the event!";
+    $_SESSION['flash_registration'] = 'Registered successfully! Check your events in the View Events section.';
+    $stmt->close();
+    $conn->close();
     header("Location: user-dashboard.php#userEvents");
     exit();
 } else {
-    header("Location: user-dashboard.php?message=error#userEvents");
+    $_SESSION['flash_registration'] = 'Registration failed. Please try again.';
+    $stmt->close();
+    $conn->close();
+    header("Location: user-dashboard.php#userEvents");
+    exit();
 }
-
-$stmt->close();
-$conn->close();
-exit();

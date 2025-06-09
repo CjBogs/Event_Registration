@@ -25,7 +25,6 @@ if (!empty($_SESSION['user_email'])) {
     }
 }
 
-// Fetch pending events ordered by event_date DESC
 $query = "SELECT * FROM events WHERE status = 'pending' ORDER BY event_date DESC";
 $allEvents = mysqli_query($conn, $query);
 
@@ -62,71 +61,70 @@ function statusIcon($status)
                         <th class="px-4 py-3 text-center">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php while ($row = mysqli_fetch_assoc($allEvents)): ?>
-                        <?php
-                        $status = $row['status'];
-                        $statusColor = match ($status) {
-                            'approved' => 'green',
-                            'rejected' => 'red',
-                            default => 'yellow',
-                        };
-                        ?>
-                        <tr class="border-b hover:bg-[#FAF5EE]">
-                            <td class="px-4 py-3 font-medium text-[#1D503A]"><?= htmlspecialchars($row['title']) ?></td>
-                            <td class="px-4 py-3 text-[#1D503A]"><?= date('F j, Y', strtotime($row['event_date'])) ?></td>
-                            <td class="px-4 py-3 max-w-xs truncate text-[#1D503A]" title="<?= htmlspecialchars($row['description']) ?>"><?= truncate($row['description']) ?></td>
-                            <td class="px-4 py-3 text-[#1D503A]"><?= htmlspecialchars($row['user_email']) ?></td>
-                            <td class="px-4 py-3">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold 
-                                <?= $statusColor === 'green' ? 'bg-green-100 text-green-700' : ($statusColor === 'red' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') ?>">
-                                    <?= statusIcon($status) ?>
-                                    <?= ucfirst($status) ?>
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-center space-y-1">
-                                <?php if ($status === 'pending'): ?>
-                                    <div class="inline-flex space-x-2">
-                                        <!-- Approve Button triggers modal -->
-                                        <button
-                                            type="button"
-                                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm font-semibold"
-                                            @click="showModal = true; actionType = 'approve'; eventId = <?= $row['id'] ?>;">
-                                            Approve
-                                        </button>
-                                        <!-- Reject Button triggers modal -->
-                                        <button
-                                            type="button"
-                                            class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm font-semibold"
-                                            @click="showModal = true; actionType = 'reject'; eventId = <?= $row['id'] ?>;">
-                                            Reject
-                                        </button>
-                                    </div>
-                                <?php else: ?>
-                                    &mdash;
-                                <?php endif; ?>
-
-                                <!-- View Details Button -->
-                                <button type="button"
-                                    class="view-details-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-semibold"
-                                    data-title="<?= htmlspecialchars($row['title'], ENT_QUOTES) ?>"
-                                    data-date="<?= htmlspecialchars(date('F j, Y', strtotime($row['event_date'])), ENT_QUOTES) ?>"
-                                    data-description="<?= htmlspecialchars($row['description'], ENT_QUOTES) ?>"
-                                    data-user="<?= htmlspecialchars($row['user_email'], ENT_QUOTES) ?>"
-                                    data-status="<?= htmlspecialchars($status, ENT_QUOTES) ?>">
-                                    View
-                                </button>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
             </table>
+            <!-- Scrollable table body -->
+            <div class="max-h-[360px] overflow-y-auto">
+                <table class="w-full text-sm text-left text-gray-700">
+                    <tbody>
+                        <?php while ($row = mysqli_fetch_assoc($allEvents)): ?>
+                            <?php
+                            $status = $row['status'];
+                            $statusColor = match ($status) {
+                                'approved' => 'green',
+                                'rejected' => 'red',
+                                default => 'yellow',
+                            };
+                            ?>
+                            <tr class="border-b hover:bg-[#FAF5EE]">
+                                <td class="px-4 py-3 font-medium text-[#1D503A]"><?= htmlspecialchars($row['title']) ?></td>
+                                <td class="px-4 py-3 text-[#1D503A]"><?= date('F j, Y', strtotime($row['event_date'])) ?></td>
+                                <td class="px-4 py-3 max-w-xs truncate text-[#1D503A]" title="<?= htmlspecialchars($row['description']) ?>"><?= truncate($row['description']) ?></td>
+                                <td class="px-4 py-3 text-[#1D503A]"><?= htmlspecialchars($row['user_email']) ?></td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold 
+                                    <?= $statusColor === 'green' ? 'bg-green-100 text-green-700' : ($statusColor === 'red' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') ?>">
+                                        <?= statusIcon($status) ?>
+                                        <?= ucfirst($status) ?>
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-center space-y-1">
+                                    <?php if ($status === 'pending'): ?>
+                                        <div class="inline-flex space-x-2">
+                                            <button
+                                                type="button"
+                                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm font-semibold"
+                                                @click="showModal = true; actionType = 'approve'; eventId = <?= $row['id'] ?>;">
+                                                Approve
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm font-semibold"
+                                                @click="showModal = true; actionType = 'reject'; eventId = <?= $row['id'] ?>;">
+                                                Reject
+                                            </button>
+                                        </div>
+                                    <?php else: ?>
+                                        &mdash;
+                                    <?php endif; ?>
+
+                                    <button type="button"
+                                        class="view-details-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-semibold"
+                                        data-title="<?= htmlspecialchars($row['title'], ENT_QUOTES) ?>"
+                                        data-date="<?= htmlspecialchars(date('F j, Y', strtotime($row['event_date'])), ENT_QUOTES) ?>"
+                                        data-description="<?= htmlspecialchars($row['description'], ENT_QUOTES) ?>"
+                                        data-user="<?= htmlspecialchars($row['user_email'], ENT_QUOTES) ?>"
+                                        data-status="<?= htmlspecialchars($status, ENT_QUOTES) ?>">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     <?php else: ?>
-        <div
-            class="text-center text-[#1D503A] select-none"
-            role="alert"
-            aria-live="polite"
+        <div class="text-center text-[#1D503A] select-none" role="alert" aria-live="polite"
             style="margin: 0.5rem auto; border: 2px dashed #1D503A; border-radius: 1rem; background-color: #FAF5EE; max-width: 900px; width: 100%; padding: 2rem 1rem;">
             <svg class="mx-auto mb-4 w-20 h-20 text-[#1D503A]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 2a2 2 0 0 1 2 2v3H6V4a2 2 0 0 1 2-2h8zm4 7v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9h16zm-5 3H9v1h6v-1z" />
